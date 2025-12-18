@@ -1,8 +1,7 @@
 # Pyrium — Server-Side Meta-Loader & VM for Minecraft
 
-> **Pyrium is an experimental server-side meta-loader and virtual machine for Minecraft.**  
-> It launches a base server (Vanilla, Paper, Fabric, Forge, or custom builds) and extends it with a **sandboxed, opcode-based runtime** for Python-authored mods.  
-> No client mods required.
+> Pyrium is a server-side meta-loader and virtual machine for Minecraft.  
+> It launches a base server (Vanilla, Paper, Fabric, Forge, or custom builds) and extends it with a **sandboxed, opcode-based runtime** for Python-authored mods. No client mods required.
 
 ---
 
@@ -10,15 +9,16 @@
 
 ### ✅ Pyrium *is*:
 - A **server-side meta-loader**, not a plugin API
-- A **custom VM** with an explicit opcode instruction set
+- A **custom VM** executing PyBC bytecode
 - A **Python-fronted, AOT-compiled runtime** (Python → IR → PyBC)
 - Designed for **deterministic, isolated mod execution**
 - Client-agnostic (resource packs generated automatically)
+- Capable of running **basic and intermediate mods** from `pymod-examples`
 
 ### ❌ Pyrium is *not*:
-- A Forge / Fabric replacement (yet)
-- A scripting layer that executes raw Python
-- A production-ready platform (currently **pre-alpha**)
+- A Forge / Fabric replacement
+- A production-ready, fully stable platform
+- Guaranteed to support all OpCodes (~170) perfectly
 
 ---
 
@@ -27,24 +27,28 @@
 ```
 Python Mod
    ↓
-AOT Compiler (pyrium-aot)
+compiler.py + ir.py
    ↓
-PyBC (binary bytecode)
+PyBC bytecode (.pybc)
    ↓
-Pyrium VM (pyrium-core)
+PyBCRuntime.java
    ↓
-Server API Bridge
+PyBCModule.java (loaded mod)
+   ↓
+Event Dispatcher
    ↓
 Base Minecraft Server
 ```
 
-Each mod runs inside the Pyrium VM and interacts with the server **only through defined opcodes**.
+- Mods are compiled into PyBC bytecode by `compiler.py` + `ir.py`
+- `PyBCRuntime` executes bytecode inside the server JVM
+- `PyBCModule` represents each mod, its manifest, events, and assets
 
 ---
 
 ## Instruction Set (OpCodes)
 
-Pyrium exposes a **large but controlled opcode set**, grouped by domain:
+Pyrium exposes ~170 OpCodes, grouped by domain:
 
 - Core & control flow (if/while/for/try)
 - Events (player, entity, block, chat, command)
@@ -56,16 +60,15 @@ Pyrium exposes a **large but controlled opcode set**, grouped by domain:
 - Math, variables, randomness
 - Visuals (particles, sounds, bossbars)
 
-📄 **Full opcode list:** `pyrium-core/runtime/ops.py`
+📄 **Full opcode list:** `pyrium-core/runtime/ops.py`  
 
-> The README documents only stable, high-level ops.  
-> Experimental or unsafe ops are intentionally undocumented.
+> Only stable, high-level Ops are documented; experimental or unsafe Ops may not be fully implemented.
 
 ---
 
 ## Runtime Isolation
 
-Each Minecraft version runs in its own isolated runtime:
+Each Minecraft version has an isolated runtime:
 
 ```
 .pyrium/runtime/<mc-version>/
@@ -78,8 +81,8 @@ Each Minecraft version runs in its own isolated runtime:
 ```
 
 - Mods cannot crash the server
-- Errors are sandboxed and logged
-- Future versions will support permission-scoped ops
+- Errors are sandboxed
+- Event hooks dispatch in the VM
 
 ---
 
@@ -90,18 +93,41 @@ Each Minecraft version runs in its own isolated runtime:
 Java 17+
 Python 3.11+
 
-# Build everything
+# Build Java modules and AOT compiler
 ./build.sh
 
 # Start the server
 java -jar pyrium-bootstrap/target/pyrium-bootstrap.jar
 ```
 
-Pyrium resolves the base server automatically (default: latest Vanilla).
+Pyrium automatically resolves the base server (latest Vanilla by default).
 
 ---
 
 ## Writing a Mod
+
+Example structure:
+
+```
+my_mod/
+ ├─ manifest.json
+ ├─ mod.py
+ └─ assets/
+```
+
+### manifest.json
+
+```json
+{
+  "name": "my_mod",
+  "entry": "mod.py",
+  "version": "0.1.0",
+  "mc_compat": ">=1.21.0",
+  "pyrium_api": "0.2.0"
+}
+```
+
+### mod.py
 
 ```python
 def on_player_join(player):
@@ -109,56 +135,96 @@ def on_player_join(player):
     give_item(player, "minecraft:diamond", 1)
 ```
 
-Mods are compiled at startup into PyBC and loaded by the VM.
+- Event functions are automatically registered
+- Use `log()` and `debug()` for debugging
+- Control flow, variables, math, loops, try/except are supported
 
 ---
 
-## Security Model (Important)
+## Assets & Resource Packs
 
-Pyrium executes **bytecode, not Python source**.
+```
+assets/
+ ├─ textures/
+ ├─ sounds/
+ └─ lang/en_us.json
+```
 
-- No dynamic imports
-- No reflection
-- No JVM access
+- Bundled automatically into `pyrium-resource-pack.zip`
+
+---
+
+## Compilation
+
+- Mods are compiled automatically at startup
+- Manual compilation:
+
+```bash
+pyrium-aot \
+  --in my_mod/mod.py \
+  --out .pyrium/runtime/<version>/mods/my_mod/
+```
+
+- Output: `mod.pybc` loaded by the runtime
+
+---
+
+## Security & Limitations
+
+- Bytecode execution only (no raw Python execution)
+- No dynamic imports or JVM reflection
 - IO and networking ops are permission-gated
-- Unsafe ops may be disabled by server config
+- Not fully hardened for hostile mods
+- Some OpCodes may be incomplete or experimental
 
-⚠️ Pyrium is **not yet hardened for hostile mods**.
+---
+
+## Supported Features (Working)
+
+- Base server launch (Vanilla)
+- Simple mods: logging, broadcast, give_item, set_block
+- Tick and basic player events (`on_tick`, `on_player_join`)
+- PyBC compilation and execution
+- Asset/resource pack bundling
+
+---
+
+## Experimental / Partial Features
+
+- Advanced entity ops (NBT, attributes, AI)
+- Complex event hooks (craft, interact, command)
+- IO, networking, HTTP
+- Pathfinding, animations
+- Many OpCodes exist in ops.py but are not guaranteed fully implemented
 
 ---
 
 ## Project Status
 
-- 🧪 **Stage:** Pre-Alpha
-- 🧠 **Focus:** Architecture, VM correctness, opcode design
-- 🚧 **Missing:** API freeze, docs, stability guarantees
-
-Breaking changes **will happen**.
+- 🧪 Pre-Alpha, experimental
+- ⚠️ API not stable
+- 🔧 Still under active development
+- Breaking changes likely
 
 ---
 
-## Why This Exists
+## Why Pyrium Exists
 
-Java-based modding is powerful but complex.  
-Pyrium explores whether a **VM-driven, language-agnostic approach** can offer:
-
-- safer mods
-- simpler authoring
-- deterministic execution
-- better isolation
-
-This project is an experiment.
+- Provide a Python-friendly, VM-driven modding platform
+- Enable deterministic, isolated mods
+- Experiment with alternative server-side architectures
 
 ---
 
 ## Contributing
 
-If you are interested in:
+Interested in:
+
 - VM design
-- compiler pipelines
+- Compiler pipelines
 - Minecraft server internals
 
-…you’re welcome here.
+…you’re welcome to contribute.
 
 ---
 
