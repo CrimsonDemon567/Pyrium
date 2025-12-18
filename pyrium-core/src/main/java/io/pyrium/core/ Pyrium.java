@@ -1,11 +1,12 @@
 package io.pyrium.core;
 
+import io.pyrium.bootstrap.RuntimeLayout;
+
 public final class Pyrium {
-  public static void boot(ClassLoader cl) throws Exception {
-    System.out.println("[Pyrium] Core boot: installing vanilla bridge and event bus.");
-    BridgeVanilla.install();
+  public static void boot(ClassLoader cl, RuntimeLayout rt) throws Exception {
+    System.out.println("[Pyrium] Core boot: Event bus, PyBC runtime, mods.");
     EventBus.init();
-    Mods.loadAll(); // loads Python-compiled mods and Java-side stubs
-    Diagnostics.banner();
+    Mods.loadAll(rt);
+    Diagnostics.banner(rt);
   }
 }
