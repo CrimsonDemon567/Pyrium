@@ -1,7 +1,7 @@
 package io.pyrium.bootstrap;
 
 import java.io.*;
-import java.net.*;
+import java.net.URL;
 import java.nio.file.*;
 import java.time.Instant;
 
@@ -15,14 +15,14 @@ public final class Resolver {
       var path = download(url, ".pyrium/runtime/" + vtag + "/server.jar");
       return new Artifact(path, vtag, true);
     } else if ("custom".equalsIgnoreCase(cfg.source())) {
-      if (cfg.artifact().isBlank()) throw new IllegalArgumentException("custom source requires 'artifact' URL or local path.");
+      if (cfg.artifact().isBlank()) throw new IllegalArgumentException("custom source requires 'artifact'");
       Path out;
       if (cfg.artifact().startsWith("http://") || cfg.artifact().startsWith("https://")) {
         out = download(cfg.artifact(), ".pyrium/runtime/custom-" + Instant.now().toEpochMilli() + "/server.jar");
       } else {
         Path src = Paths.get(cfg.artifact());
-        var v = "local-" + Instant.now().toEpochMilli();
-        Path dest = Paths.get(".pyrium/runtime/" + v + "/server.jar");
+        String tag = "local-" + Instant.now().toEpochMilli();
+        Path dest = Paths.get(".pyrium/runtime/" + tag + "/server.jar");
         Files.createDirectories(dest.getParent());
         Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
         out = dest;
@@ -35,7 +35,6 @@ public final class Resolver {
   }
 
   private static String latestMojangVersion() throws Exception {
-    // Minimal: call official manifest
     var url = new URL("https://launchermeta.mojang.com/mc/game/version_manifest.json");
     try (var in = url.openStream()) {
       var json = new String(in.readAllBytes());
@@ -49,24 +48,22 @@ public final class Resolver {
   }
 
   private static String serverJarUrlForVersion(String vtag) throws Exception {
-    // Resolve version metadata, then server URL
-    var metaUrl = new URL("https://launchermeta.mojang.com/mc/game/version_manifest.json");
-    String meta;
-    try (var in = metaUrl.openStream()) { meta = new String(in.readAllBytes()); }
+    var manifestUrl = new URL("https://launchermeta.mojang.com/mc/game/version_manifest.json");
+    String manifest;
+    try (var in = manifestUrl.openStream()) { manifest = new String(in.readAllBytes()); }
     var key = "\"id\":\"" + vtag + "\"";
-    int i = meta.indexOf(key);
+    int i = manifest.indexOf(key);
     if (i < 0) throw new IllegalStateException("Version not found: " + vtag);
-    int urlStartMarker = meta.indexOf("\"url\":\"", i) + 7;
-    int urlEndMarker = meta.indexOf("\"", urlStartMarker);
-    var versionMetaUrl = meta.substring(urlStartMarker, urlEndMarker);
+    int urlStart = manifest.indexOf("\"url\":\"", i) + 7;
+    int urlEnd = manifest.indexOf("\"", urlStart);
+    var versionMetaUrl = manifest.substring(urlStart, urlEnd);
     String vm;
     try (var in = new URL(versionMetaUrl).openStream()) { vm = new String(in.readAllBytes()); }
-    var dlKey = "\"server\":{\"sha1\":\"";
-    int j = vm.indexOf(dlKey);
+    int j = vm.indexOf("\"server\":{\"sha1\":\"");
     if (j < 0) throw new IllegalStateException("Server section missing for: " + vtag);
-    int urlStart = vm.indexOf("\"url\":\"", j) + 7;
-    int urlEnd = vm.indexOf("\"", urlStart);
-    return vm.substring(urlStart, urlEnd);
+    int s = vm.indexOf("\"url\":\"", j) + 7;
+    int e = vm.indexOf("\"", s);
+    return vm.substring(s, e);
   }
 
   private static Path download(String url, String outPath) throws Exception {
