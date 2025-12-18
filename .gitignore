@@ -1,0 +1,12 @@
+# Java
+target/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Runtime
+.pyrium/
+runtime/
