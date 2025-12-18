@@ -1,15 +1,18 @@
-class IRModule:
-    def __init__(self, name):
-        self.name = name
-        self.functions = []
+from dataclasses import dataclass, field
+from typing import List
 
-class IRFunction:
-    def __init__(self, name, sig):
-        self.name = name
-        self.sig = sig
-        self.ops = []
-
+@dataclass
 class Op:
-    def __init__(self, kind, args=None):
-        self.kind = kind
-        self.args = args or []
+    code: int
+    a: str = ""
+    d: float = 0.0
+
+@dataclass
+class IRFunction:
+    name: str
+    ops: List[Op] = field(default_factory=list)
+
+@dataclass
+class IRModule:
+    name: str
+    functions: List[IRFunction] = field(default_factory=list)
