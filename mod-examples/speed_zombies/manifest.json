@@ -1,0 +1,7 @@
+{
+  "name": "speed_zombies",
+  "entry": "mod.py",
+  "version": "0.1.0",
+  "mc_compat": ">=1.21.0",
+  "pyrium_api": "0.1.0"
+}
