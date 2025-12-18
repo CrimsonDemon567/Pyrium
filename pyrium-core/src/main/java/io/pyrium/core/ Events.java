@@ -1,5 +1,5 @@
 package io.pyrium.core;
 
 public final class Events {
-  public record Tick(long nowNanos) {}
+  public record Tick(long nowNanos, double dtMillis) {}
 }
