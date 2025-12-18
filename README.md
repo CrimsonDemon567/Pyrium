@@ -1,28 +1,43 @@
-# Pyrium meta-loader
+# Pyrium meta-loader (PyBC)
 
-Pyrium is a constant server-side layer that loads a base Minecraft server (default: Vanilla via Mojang).
-It resolves versions from `mc_version.json`, isolates runtime per MC version, injects hooks, and runs Python mods compiled to JVM bytecode via the Pyrium AOT pipeline.
+Pyrium is a server-side meta-loader: It loads a base Minecraft server JAR (default: Vanilla via Mojang) and automatically extends it with Pyrium hooks. Mods are written in Python, compiled to PyBC (optimized binary bytecode), and executed server-side. No client-side mods.
 
 ## Quick start
-1. Ensure Java 17+ and Python 3.11+ are installed.
-2. Edit `mc_version.json` (or leave defaults for latest Vanilla).
-3. Run `./build.sh` to build all modules.
+
+1. Install Java 17+ and Python 3.11+.
+
+2. Optional: Adjust `mc_version.json`. The default loads the latest Vanilla version.
+
+3. Run `./build.sh` (builds Java modules and sets up Python AOT).
+
 4. Start: `java -jar pyrium-bootstrap/target/pyrium-bootstrap.jar`.
 
+
 ## mc_version.json
-- If `"source": "mojang"` and `"version": ""`, Pyrium resolves the latest stable Vanilla server automatically.
-- For Paper/Fabric/Forge, set `"source": "custom"` and provide `"artifact"` URL plus optional `"verify_sha256"`.
 
-## Runtime layout
-Pyrium stores resolved server jars and caches under `.pyrium/runtime/<version>/`.
-Each version is isolated and includes profiling, caches, and compiled mod classes.
+- `"source": "mojang"` and an empty `"version"` → the latest vanilla version will be loaded automatically.
 
-## Modules
-- pyrium-bootstrap: launcher, resolver, classloader
-- pyrium-core: event bus, mod loader, vanilla bridge
-- pyrium-rpb: resource pack builder (stub)
-- pyrium-aot: Python → IR → JVM class generation (M1)
-- pymod-examples: sample Pyrium mod
+- For Paper/Fabric/Forge or custom builds: Set `"source": "custom"` and `"artifact"` (URL or path); optionally, `verify_sha256`.
+
+## Mods and PyBC
+
+- Write mods in Python and compile them to `.pybc` using `pyrium-aot`.
+
+- Pyrium loads all `.pybc` files into `.pyrium/runtime/<version>/mods/`.
+
+
+
+``` ## Modules
+
+- pyrium-bootstrap: Resolver, Runtime, ClassLoader, AOT Integration
+
+- pyrium-core: EventBus, PyBC Runtime, Mods Loader
+
+- pyrium-aot: Python → IR → PyBC Compiler
+
+- pyrium-rpb: Resource Pack Builder (Stub)
+
+- pymod-examples: Example Mod
 
 ## License
 MIT
