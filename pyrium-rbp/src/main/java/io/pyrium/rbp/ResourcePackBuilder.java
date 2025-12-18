@@ -9,25 +9,28 @@ import java.util.zip.*;
 public final class ResourcePackBuilder {
 
   public static void buildIfNeeded(RuntimeLayout rt) {
-    Path modsDir = rt.modsDir().getParent(); // .pyrium/runtime/<version>/
-    Path assetsZip = modsDir.resolve("pyrium-resource-pack.zip");
+    // modsDir zeigt jetzt direkt auf .pyrium/runtime/<version>/mods
+    Path modsDir = rt.modsDir();
+    Path assetsZip = modsDir.getParent().resolve("pyrium-resource-pack.zip");
     try {
       try (var out = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(assetsZip)))) {
-        // Scan pymod-examples/*/assets and include into zip (namespaced)
-        Path examples = Paths.get("pymod-examples");
-        if (Files.exists(examples)) {
-          try (var mods = Files.list(examples).filter(Files::isDirectory)) {
-            for (Path modDir : (Iterable<Path>)mods::iterator) {
+        // Scan mods/*/assets and include into zip (namespaced)
+        if (Files.exists(modsDir)) {
+          try (var mods = Files.list(modsDir).filter(Files::isDirectory)) {
+            for (Path modDir : (Iterable<Path>) mods::iterator) {
               Path assets = modDir.resolve("assets");
               if (!Files.exists(assets)) continue;
               Files.walk(assets).filter(Files::isRegularFile).forEach(f -> {
                 try {
                   String rel = assets.relativize(f).toString().replace('\\','/');
+                  // Namespace: pyrium/<modname>/<assetpath>
                   String entryName = "pyrium/" + modDir.getFileName() + "/" + rel;
                   out.putNextEntry(new ZipEntry(entryName));
                   Files.copy(f, out);
                   out.closeEntry();
-                } catch (IOException e) { e.printStackTrace(); }
+                } catch (IOException e) {
+                  e.printStackTrace();
+                }
               });
             }
           }
