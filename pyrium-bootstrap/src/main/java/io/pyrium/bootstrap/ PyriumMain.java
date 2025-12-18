@@ -11,7 +11,7 @@ public final class PyriumMain {
 
     var loader = new PyriumClassLoader(rt);
     loader.attachBaseServer(art.path());
-    loader.loadCore(); // pyrium-core.jar
-    loader.start();    // hooks, event bus, mods
+    loader.loadCore();
+    loader.start();
   }
 }
