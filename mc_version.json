@@ -1,0 +1,10 @@
+{
+  "version": "",
+  "base_loader": "vanilla",
+  "source": "mojang",
+  "artifact": "",
+  "verify_sha256": "",
+  "auto_update": true,
+  "allow_snapshot": false,
+  "resource_pack_policy": "lock"
+}
