@@ -35,8 +35,8 @@ public final class Mods {
       public double getSpeed(){ return speed; }
       public void setSpeed(double v){ speed = v; }
     }
-    public List<PyBCRuntime.EntityFacade> entities(String type) {
-      return List.of(new Ent(), new Ent(), new Ent());
+    public java.util.List<PyBCRuntime.EntityFacade> entities(String type) {
+      return java.util.List.of(new Ent(), new Ent(), new Ent());
     }
   }
 }
