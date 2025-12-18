@@ -17,8 +17,7 @@
 
 ### ❌ Pyrium is *not*:
 - A Forge / Fabric replacement
-- A production-ready, fully stable platform
-- Guaranteed to support all OpCodes (~170) perfectly
+- A production-ready platform
 
 ---
 
@@ -175,7 +174,6 @@ pyrium-aot \
 - No dynamic imports or JVM reflection
 - IO and networking ops are permission-gated
 - Not fully hardened for hostile mods
-- Some OpCodes may be incomplete or experimental
 
 ---
 
@@ -195,13 +193,12 @@ pyrium-aot \
 - Complex event hooks (craft, interact, command)
 - IO, networking, HTTP
 - Pathfinding, animations
-- Many OpCodes exist in ops.py but are not guaranteed fully implemented
 
 ---
 
 ## Project Status
 
-- 🧪 Pre-Alpha, experimental
+- 🧪 Alpha, experimental
 - ⚠️ API not stable
 - 🔧 Still under active development
 - Breaking changes likely
