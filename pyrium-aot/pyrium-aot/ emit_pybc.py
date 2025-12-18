@@ -4,7 +4,6 @@ MAGIC = 0x50594243  # 'PYBC'
 VERSION = 2
 
 def emit_ir_to_pybc(ir, out_path:str):
-    # Build string pool
     pool = []
     for fn in ir.functions:
         for op in fn.ops:
