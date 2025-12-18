@@ -5,7 +5,9 @@ from typing import List
 class Op:
     code: int
     a: str = ""
+    b: str = ""
     d: float = 0.0
+    i: int = 0
 
 @dataclass
 class IRFunction:
@@ -15,4 +17,5 @@ class IRFunction:
 @dataclass
 class IRModule:
     name: str
+    pool: List[str] = field(default_factory=list)
     functions: List[IRFunction] = field(default_factory=list)
