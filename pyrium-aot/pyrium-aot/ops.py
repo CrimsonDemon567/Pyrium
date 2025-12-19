@@ -200,3 +200,22 @@ class OpCode(IntEnum):
     # Misc (490–499)
     SLEEP = 490
     YIELD = 491
+    
+    #-------------------------------
+    # Custom Mobs (600-699 reserved)
+    #-------------------------------
+    # Mob definition
+    REGISTER_CUSTOM_MOB = 600
+    SET_CUSTOM_MOB_MODEL = 601
+    SET_CUSTOM_MOB_TEXTURE = 602    # a = mob_id, b = texture_path ("textures/entity/crimson_demon.png")
+    SET_CUSTOM_MOB_SIZE = 603       # a = mob_id, d = scale (1.0 = normal)
+
+    # Behavior / Attribute
+    SET_CUSTOM_MOB_ATTR = 610       # a = mob_id, b = attr, d = value (z.B. "health", 200)
+    SET_CUSTOM_MOB_LOOT_TABLE = 611 # a = mob_id, b = loot_table_id
+    SET_CUSTOM_MOB_EQUIP = 612      # a = mob_id, b = slot ("mainhand"/"head"/...), i = item_id_index?? => wir lassen b=item_id
+    SET_CUSTOM_MOB_AI = 613         # a = mob_id, b = ai_profile_id (serverseitig definiert)
+
+    # Instances
+    SPAWN_CUSTOM_MOB = 620          # a = mob_id, i = packed(x,y,z)
+    REMOVE_CUSTOM_MOBS = 621 
