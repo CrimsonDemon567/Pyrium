@@ -303,6 +303,52 @@ public final class PyBCRuntime {
         default -> { /* nicht implementierte Ops: no-op */ }
       }
 
+      // ===== Custom Mobs =====
+      case REGISTER_CUSTOM_MOB -> {
+        world.registerCustomMob(A, B);
+      }
+
+      case SET_CUSTOM_MOB_MODEL -> {
+        world.setCustomMobModel(A, B);
+      }
+
+case SET_CUSTOM_MOB_TEXTURE -> {
+    world.setCustomMobTexture(A, B);
+}
+
+case SET_CUSTOM_MOB_SIZE -> {
+    world.setCustomMobSize(A, op.num);
+}
+
+case SET_CUSTOM_MOB_ATTR -> {
+    world.setCustomMobAttr(A, B, op.num);
+}
+
+case SET_CUSTOM_MOB_LOOT_TABLE -> {
+    world.setCustomMobLootTable(A, B);
+}
+
+case SET_CUSTOM_MOB_EQUIP -> {
+    // hier musst du definieren, wo das itemId herkommt -> z.B. in pool string B = slot|itemId getrennt durch ':'
+    world.setCustomMobEquip(A, B, "minecraft:stone_sword"); // Platzhalter
+}
+
+case SET_CUSTOM_MOB_AI -> {
+    world.setCustomMobAI(A, B);
+}
+
+case SPAWN_CUSTOM_MOB -> {
+    int x = (int)(op.i64 & 0xFFFF);
+    int y = (int)((op.i64 >>> 16) & 0xFFFF);
+    int z = (int)((op.i64 >>> 32) & 0xFFFF);
+    world.spawnCustomMob(A, x, y, z);
+}
+
+case REMOVE_CUSTOM_MOBS -> {
+    world.removeCustomMobs(A);
+}
+
+
       // Block-Skip nach IF_ELSE/IF_END
       if (skipUntilEndIf) {
         // Wir führen nichts aus, bis IF_END kommt
