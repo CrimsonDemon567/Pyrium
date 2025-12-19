@@ -96,6 +96,11 @@ public final class PyBCModule {
     // Misc
     SLEEP(490), YIELD(491);
 
+    // Custom Mobs
+    REGISTER_CUSTOM_MOB(600), SET_CUSTOM_MOD_MODEL(601), SET_CUSTOM_MOB_TEXTURE(602), SET_CUSTOM_MOB_SIZE(603);
+    SET_CUSTOM_MOB_ATTR(610), SET_CUSTOM_MOB_LOOT_TABLE(611), SET_CUSTOM_MOB_EQUIP(612), SET_CUSTOM_MOB_AI(613);
+    SPAWN_CUSTOM_MOB(620), REMOVE_CUSTOM_MOBS(621);
+    
     public final int id; OpCode(int id){ this.id = id; }
     public static OpCode of(int id){
       for (var o : values()) if (o.id == id) return o;
