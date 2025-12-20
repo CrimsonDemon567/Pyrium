@@ -1,10 +1,33 @@
 package io.pyrium.core;
 
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
+
 public final class BridgeVanilla {
-  public static void install() {
-    // TODO: Wire into the actual Vanilla/Paper tick once server is running.
-    // For now, EventBus has a placeholder loop. In production, this replaces
-    // the loop with server's native tick hook and cancels the placeholder thread.
-    System.out.println("[Pyrium] Vanilla bridge installed (stub).");
+
+  private static BukkitTask tickTask;
+
+  public static void install(Plugin plugin) {
+    // Falls bereits installiert → alten Task stoppen
+    if (tickTask != null && !tickTask.isCancelled()) {
+      tickTask.cancel();
+    }
+
+    // Native Paper/Vanilla Tick-Hook: läuft exakt einmal pro Server-Tick
+    tickTask = Bukkit.getScheduler().runTaskTimer(
+        plugin,
+        () -> {
+          // Hier wird der EventBus-Tick ausgelöst
+          EventBus.dispatchTick();
+        },
+        1L, // Start nach 1 Tick
+        1L  // Wiederholung: 1 Tick
+    );
+
+    // Placeholder-Thread im EventBus deaktivieren
+    EventBus.disablePlaceholderLoop();
+
+    System.out.println("[Pyrium] Vanilla bridge installed (native tick active).");
   }
 }
