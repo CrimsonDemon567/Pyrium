@@ -215,7 +215,84 @@ Assets are automatically bundled into the server resource pack.
 
 ---
 
-## 13. Compilation
+## 13. Custom Mobs
+
+Pyrium supports **custom mobs** defined entirely through Python code and simple asset files.
+
+A custom mob requires only:
+
+- a registration entry in the Python mod
+- corresponding files in the `assets/` directory
+
+No complex Minecraft namespaces or manual resource-pack wiring are required.
+
+### Registration and Configuration
+
+```python
+register_custom_mob(mob_id, display_name)
+```
+
+```python
+set_custom_mob_model(mob_id, model_filename)
+set_custom_mob_texture(mob_id, texture_filename)
+set_custom_mob_size(mob_id, scale)
+```
+
+```python
+set_custom_mob_attr(mob_id, attr_name, value)
+```
+
+```python
+set_custom_mob_loot_table(mob_id, loot_table_file)
+```
+
+```python
+set_custom_mob_equip(mob_id, slot, item_id)
+```
+
+```python
+set_custom_mob_ai(mob_id, ai_profile_id)
+```
+
+### Spawning and Removal
+
+```python
+spawn_custom_mob(mob_id, x, y, z)
+```
+
+```python
+remove_custom_mobs(mob_id)
+```
+
+### Asset Structure
+
+Custom mob assets are placed directly in `assets/`:
+
+```
+assets/
+  crimson_demon.json   # model
+  crimson_demon.png    # texture
+  demon_loot.json      # optional loot table
+```
+
+All files in `assets/` are automatically included in the generated resource pack.
+
+### Complete Example
+
+```python
+def on_server_start():
+    register_custom_mob("crimson_demon", "Crimson Demon")
+    set_custom_mob_model("crimson_demon", "crimson_demon.json")
+    set_custom_mob_texture("crimson_demon", "crimson_demon.png")
+    set_custom_mob_attr("crimson_demon", "health", 200)
+
+def on_player_join(player):
+    spawn_custom_mob("crimson_demon", 0, 64, 0)
+```
+
+---
+
+## 14. Compilation
 
 Mods are compiled automatically on server start.
 
@@ -231,7 +308,7 @@ This produces `mod.pybc`.
 
 ---
 
-## 14. Security & Limitations
+## 15. Security & Limitations
 
 - Mods cannot import arbitrary Python modules
 - No filesystem or network access unless permitted
@@ -242,7 +319,7 @@ This produces `mod.pybc`.
 
 ---
 
-## 15. Best Practices
+## 16. Best Practices
 
 - Keep mods small and focused
 - Avoid heavy work in `on_tick`
@@ -252,7 +329,7 @@ This produces `mod.pybc`.
 
 ---
 
-## 16. Versioning & Compatibility
+## 17. Versioning & Compatibility
 
 - Target a specific `pyrium_api` version
 - Expect breaking changes during pre-alpha
@@ -260,7 +337,7 @@ This produces `mod.pybc`.
 
 ---
 
-## 17. Example Mod
+## 18. Example Mod
 
 ```python
 def on_player_join(player):
@@ -270,7 +347,7 @@ def on_player_join(player):
 
 ---
 
-## 18. Final Notes
+## 19. Final Notes
 
 Pyrium is an **experimental platform**.
 
