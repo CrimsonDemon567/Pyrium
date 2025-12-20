@@ -47,7 +47,7 @@ Base Minecraft Server
 
 ## Instruction Set (OpCodes)
 
-Pyrium exposes ~170 OpCodes, grouped by domain:
+Pyrium exposes ~200 OpCodes, grouped by domain:
 
 - Core & control flow (if/while/for/try)
 - Events (player, entity, block, chat, command)
@@ -58,10 +58,11 @@ Pyrium exposes ~170 OpCodes, grouped by domain:
 - Networking & IO (permission-gated)
 - Math, variables, randomness
 - Visuals (particles, sounds, bossbars)
+- Custom Mobs
 
-📄 **Full opcode list:** `pyrium-core/runtime/ops.py`  
+📄 **Full opcode list:** `pyrium-aot/pyrium-aot/ops.py`  
 
-> Only stable, high-level Ops are documented; experimental or unsafe Ops may not be fully implemented.
+> Only stable, high-level Ops are documented. Do not use any opcodes that are not documented in `pyrium-aot/pyrium-aot/ops.py`. Undocumented opcodes are internal, unstable, and may change without notice.”
 
 ---
 
